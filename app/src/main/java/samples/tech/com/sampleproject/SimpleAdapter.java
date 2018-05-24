@@ -1,17 +1,22 @@
 package samples.tech.com.sampleproject;
 
+import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+
 
 import im.ene.toro.ToroPlayer;
 import im.ene.toro.ToroUtil;
@@ -23,32 +28,96 @@ import im.ene.toro.widget.Container;
  * Created by android on 23/5/18.
  */
 
-public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.SimplePlayerViewHolder> {
-    List<String> mediaList = new ArrayList<>();
+public class SimpleAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    public ArrayList<HashMap<String, String>> dataList = new ArrayList<HashMap<String, String>>();
+    Context context;
 
-    @Override
-    public SimplePlayerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_holder_exoplayer_basic, parent, false);
-        return new SimplePlayerViewHolder(view);
+    public SimpleAdapter(MainActivity mainActivity, ArrayList<HashMap<String, String>> dataDetails) {
+        this.context = mainActivity;
+        this.dataList = dataDetails;
     }
 
     @Override
-    public void onBindViewHolder(SimplePlayerViewHolder holder, int position) {
-        holder.bind(Uri.parse("http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"));
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = null;
+        switch (viewType) {
+            case 1:
+                itemView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.view_holder_exoplayer_basic, parent, false);
+                return new SimplePlayerViewHolder(itemView);
+            case 2:
+                itemView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.view_holder_image, parent, false);
+                return new ViewHolderImage(itemView);
+
+        }
+        return null;
+
     }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap = dataList.get(position);
+        String file = hashMap.get("file");
+        String photoUrl = hashMap.get("photoUrl");
+        String type = hashMap.get("type");
+/*  viewHolder.bind(Uri.parse("http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"));*/
+        Log.e("url", "" + photoUrl);
+        switch (holder.getItemViewType()) {
+            case 1:
+                SimplePlayerViewHolder viewHolder = (SimplePlayerViewHolder) holder;
+                viewHolder.bind(Uri.parse("http://18.220.29.159/salniazi-app/uploads/" + file));
+                break;
+            case 2:
+                ViewHolderImage viewHolderImage = (ViewHolderImage) holder;
+               /* Glide.with(context)
+                        .load("http://18.220.29.159/salniazi-app/uploads/" + photoUrl)
+                        .into(viewHolderImage.ivImage);*/
+                Glide.with(context)
+                        .load("https://i.stack.imgur.com/Agz87.png")
+                        .into(viewHolderImage.ivImage);
+
+                break;
+
+
+        }
+    }
+
 
     @Override
     public int getItemCount() {
-        return 8;
+        return dataList.size();
     }
 
 
     @Override
     public int getItemViewType(int position) {
-        return position;
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap = dataList.get(position);
+        int ty = 0;
+        String type = hashMap.get("type");
+        if (type.equals("video")) {
+            return 1;
+        } else if (type.equals("image")) {
+            return 2;
+        }
+        return ty;
+
 
     }
+
+    public static class ViewHolderImage extends RecyclerView.ViewHolder {
+        ImageView ivImage;
+
+        public ViewHolderImage(View itemView) {
+            super(itemView);
+            ivImage = (ImageView) itemView.findViewById(R.id.ivImage);
+
+
+        }
+    }
+
     public class SimplePlayerViewHolder extends RecyclerView.ViewHolder implements ToroPlayer, ToroPlayer.EventListener {
 
         SimpleExoPlayerView playerView;
@@ -97,7 +166,8 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.SimplePlay
 
         @Override
         public boolean isPlaying() {
-            return helper != null && helper.isPlaying();}
+            return helper != null && helper.isPlaying();
+        }
 
         @Override
         public void release() {

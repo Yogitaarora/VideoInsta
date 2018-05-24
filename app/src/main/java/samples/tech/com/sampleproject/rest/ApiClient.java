@@ -13,7 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class ApiClient {
-    public static final String BASE_URL = "http://dailywisdoms.com/backend/app/api/";
+    public static final String BASE_URL = " http://18.220.29.159/salniazi-app/";
     private static Retrofit retrofit = null;
     private static HttpLoggingInterceptor loggingInterceptor;
     private static OkHttpClient.Builder clientBuilder;
